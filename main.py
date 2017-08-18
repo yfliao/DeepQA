@@ -23,9 +23,9 @@ Use python 3
 
 import gpu
 # Choose one GPU
-gpu.setup_one_gpu()
+#gpu.setup_one_gpu()
 # Run on CPU
-#gpu.setup_no_gpu()
+gpu.setup_no_gpu()
 #
 
 from chatbot import chatbot

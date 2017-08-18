@@ -493,7 +493,6 @@ class TextData:
         """
         
         # Extract characters
-#        print(line)
         line = self.extractChar(line)
         
         sentences = []  # List[List[str]]
