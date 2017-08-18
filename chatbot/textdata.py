@@ -456,6 +456,34 @@ class TextData:
             if inputWords and targetWords:  # Filter wrong samples (if one of the list is empty)
                 self.trainingSamples.append([inputWords, targetWords])
 
+    def extractChar(self, line):
+        """Extract the characters from a sample line
+        Args:
+            line (str): a line containing the text to extract
+        Return:
+            list<list<int>>: the list of sentences of characters of the sentence
+        """
+        
+        characters = []  # List[List[str]]
+
+        # Extract characters
+#        print(line)
+        
+        j=len(line)
+        i=0
+        for s in line:
+            if (i==j-1):
+                characters += s
+            else:
+                characters += s + ' '
+            i+=1
+
+#        print(characters)
+        characters = ''.join(characters)
+#        print(characters)
+
+        return characters
+
     def extractText(self, line):
         """Extract the words from a sample lines
         Args:
@@ -463,14 +491,22 @@ class TextData:
         Return:
             list<list<int>>: the list of sentences of word ids of the sentence
         """
+        
+        # Extract characters
+#        print(line)
+        line = self.extractChar(line)
+        
         sentences = []  # List[List[str]]
 
         # Extract sentences
+#        print(line)
         sentencesToken = nltk.sent_tokenize(line)
+#        print(sentencesToken)
 
         # We add sentence by sentence until we reach the maximum length
         for i in range(len(sentencesToken)):
             tokens = nltk.word_tokenize(sentencesToken[i])
+#            print(tokens)
 
             tempWords = []
             for token in tokens:
@@ -556,8 +592,13 @@ class TextData:
         Return:
             str: the sentence
         """
+#        return ''.join([
+#            ' ' + t if not t.startswith('\'') and
+#                       t not in string.punctuation
+#                    else t
+#            for t in tokens]).strip().capitalize()
         return ''.join([
-            ' ' + t if not t.startswith('\'') and
+            '' + t if not t.startswith('\'') and
                        t not in string.punctuation
                     else t
             for t in tokens]).strip().capitalize()
@@ -587,10 +628,17 @@ class TextData:
         if sentence == '':
             return None
 
+#        print(sentence)
+
+        # Extract characters
+        sentence = self.extractChar(sentence)
+#        print(sentence)
+
         # First step: Divide the sentence in token
         tokens = nltk.word_tokenize(sentence)
         if len(tokens) > self.args.maxLength:
             return None
+#        print(tokens)
 
         # Second step: Convert the token in word ids
         wordIds = []

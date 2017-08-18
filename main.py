@@ -21,6 +21,13 @@ Main script. See README.md for more information
 Use python 3
 """
 
+import gpu
+# Choose one GPU
+gpu.setup_one_gpu()
+# Run on CPU
+#gpu.setup_no_gpu()
+#
+
 from chatbot import chatbot
 
 
