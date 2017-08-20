@@ -27,6 +27,8 @@ import random
 import string
 import collections
 
+import opencc
+
 from chatbot.corpus.cornelldata import CornellData
 from chatbot.corpus.opensubsdata import OpensubsData
 from chatbot.corpus.scotusdata import ScotusData
@@ -463,6 +465,9 @@ class TextData:
         Return:
             list<list<int>>: the list of sentences of characters of the sentence
         """
+#        print(line)
+        line = opencc.convert(line, config='s2twp.json')
+#        print(line)
         
         characters = []  # List[List[str]]
 
@@ -481,6 +486,7 @@ class TextData:
 #        print(characters)
         characters = ''.join(characters)
 #        print(characters)
+        
 
         return characters
 
