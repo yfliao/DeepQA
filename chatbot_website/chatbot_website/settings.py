@@ -25,7 +25,7 @@ SECRET_KEY = os.environ['CHATBOT_SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '140.124.72.159']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -106,7 +106,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "asgi_redis.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [os.environ.get('REDIS_URL', 'redis://{}:6380'.format(redis_url))],
+            "hosts": [os.environ.get('REDIS_URL', 'redis://{}:6379'.format(redis_url))],
         },
         "ROUTING": "chatbot_interface.routing.channel_routing",
     },
