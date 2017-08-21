@@ -141,7 +141,8 @@ class Model:
 
         # Creation of the rnn cell
         def create_rnn_cell():
-            encoDecoCell = tf.contrib.rnn.BasicLSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)
+#            encoDecoCell = tf.contrib.rnn.BasicLSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)
+            encoDecoCell = tf.contrib.rnn.LSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)
                 self.args.hiddenSize,
             )
             if not self.args.test:  # TODO: Should use a placeholder instead
