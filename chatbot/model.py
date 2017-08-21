@@ -126,6 +126,7 @@ class Model:
                 # We need to compute the sampled_softmax_loss using 32bit floats to
                 # avoid numerical instabilities.
                 localWt     = tf.cast(outputProjection.W_t,             tf.float32)
+#                localWt     = tf.cast(outputProjection.W,             tf.float32)
                 localB      = tf.cast(outputProjection.b,               tf.float32)
                 localInputs = tf.cast(inputs,                           tf.float32)
 
@@ -135,6 +136,8 @@ class Model:
                         localB,
                         labels,
                         localInputs,
+#                        localInputs,
+#                        labels,
                         self.args.softmaxSamples,  # The number of classes to randomly sample per batch
                         self.textData.getVocabularySize()),  # The number of classes
                     self.dtype)
@@ -152,6 +155,7 @@ class Model:
                     output_keep_prob=self.args.dropout
                 )
             return encoDecoCell
+
         encoDecoCell = tf.contrib.rnn.MultiRNNCell(
             [create_rnn_cell() for _ in range(self.args.numLayers)],
         )
@@ -178,7 +182,8 @@ class Model:
             self.textData.getVocabularySize(),  # Both encoder and decoder have the same number of class
             embedding_size=self.args.embeddingSize,  # Dimension of each word
             output_projection=outputProjection.getWeights() if outputProjection else None,
-            feed_previous=bool(self.args.test)  # When we test (self.args.test), we use previous output as next input (feed_previous)
+            feed_previous=bool(self.args.test),  # When we test (self.args.test), we use previous output as next input (feed_previous)
+            initial_state_attention=False
         )
 
         # TODO: When the LSTM hidden size is too big, we should project the LSTM output into a smaller space (4086 => 2046): Should speed up

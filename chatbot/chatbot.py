@@ -335,9 +335,8 @@ class Chatbot:
 
         while True:
             question = input(self.SENTENCES_PREFIX[0])
-            if question == '' or question == 'exit':
+            if question == 'quit' or question == 'exit':
                 break
-
             questionSeq = []  # Will be contain the question as seen by the encoder
             answer = self.singlePredict(question, questionSeq)
             if not answer:
@@ -349,8 +348,6 @@ class Chatbot:
             if self.args.verbose:
                 print(self.textData.batchSeq2str(questionSeq, clean=True, reverse=True))
                 print(self.textData.sequence2str(answer))
-
-            print()
 
     def singlePredict(self, question, questionSeq=None):
         """ Predict the sentence
