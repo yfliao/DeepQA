@@ -141,7 +141,8 @@ class Model:
 
         # Creation of the rnn cell
         def create_rnn_cell():
-            encoDecoCell = tf.contrib.rnn.BasicLSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)
+#            encoDecoCell = tf.contrib.rnn.BasicLSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)
+            encoDecoCell = tf.contrib.rnn.LSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)
                 self.args.hiddenSize,
             )
             if not self.args.test:  # TODO: Should use a placeholder instead
@@ -151,8 +152,37 @@ class Model:
                     output_keep_prob=self.args.dropout
                 )
             return encoDecoCell
+
+        # Creation of the rnn cell
+        def create_bi_rnn_cell():
+#            encoDecoCell = tf.contrib.rnn.BasicLSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)
+            encoDecoCellFw = tf.contrib.rnn.LSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)
+                self.args.hiddenSize,
+            )
+            encoDecoCellBw = tf.contrib.rnn.LSTMCell(  # Or GRUCell, LSTMCell(args.hiddenSize)
+                self.args.hiddenSize,
+            )
+            if not self.args.test:  # TODO: Should use a placeholder instead
+                encoDecoCellFw = tf.contrib.rnn.DropoutWrapper(
+                    encoDecoCellFw,
+                    input_keep_prob=1.0,
+                    output_keep_prob=self.args.dropout
+                )
+            if not self.args.test:  # TODO: Should use a placeholder instead
+                encoDecoCellBw = tf.contrib.rnn.DropoutWrapper(
+                    encoDecoCellBw,
+                    input_keep_prob=1.0,
+                    output_keep_prob=self.args.dropout
+                )
+            encoDecoCell = tf.nn.bidirectional_dynamic_rnn(cell_fw=encoDecoCellFw, cell_bw=encoDecoCellFw)
+            
+            return encoDecoCell
+
         encoDecoCell = tf.contrib.rnn.MultiRNNCell(
             [create_rnn_cell() for _ in range(self.args.numLayers)],
+
+#        encoDecoCell = tf.contrib.rnn.MultiRNNCell(
+#            [create_bi_rnn_cell() for _ in range(self.args.numLayers)],
         )
 
         # Network input (placeholders)
@@ -168,7 +198,9 @@ class Model:
         # Define the network
         # Here we use an embedding model, it takes integer as input and convert them into word vector for
         # better word representation
-        decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_rnn_seq2seq(
+        
+#        decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(
+        decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(
             self.encoderInputs,  # List<[batch=?, inputDim=1]>, list of size args.maxLength
             self.decoderInputs,  # For training, we force the correct output (feed_previous=False)
             encoDecoCell,
@@ -176,7 +208,8 @@ class Model:
             self.textData.getVocabularySize(),  # Both encoder and decoder have the same number of class
             embedding_size=self.args.embeddingSize,  # Dimension of each word
             output_projection=outputProjection.getWeights() if outputProjection else None,
-            feed_previous=bool(self.args.test)  # When we test (self.args.test), we use previous output as next input (feed_previous)
+            feed_previous=bool(self.args.test),  # When we test (self.args.test), we use previous output as next input (feed_previous)
+            initial_state_attention=False
         )
 
         # TODO: When the LSTM hidden size is too big, we should project the LSTM output into a smaller space (4086 => 2046): Should speed up

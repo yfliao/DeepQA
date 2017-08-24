@@ -119,22 +119,22 @@ class Chatbot:
 
         # Network options (Warning: if modifying something here, also make the change on save/loadParams() )
         nnArgs = parser.add_argument_group('Network options', 'architecture related option')
-        nnArgs.add_argument('--hiddenSize', type=int, default=512, help='number of hidden units in each RNN cell')
+        nnArgs.add_argument('--hiddenSize', type=int, default=1024, help='number of hidden units in each RNN cell')
         nnArgs.add_argument('--numLayers', type=int, default=2, help='number of rnn layers')
         nnArgs.add_argument('--softmaxSamples', type=int, default=0, help='Number of samples in the sampled softmax loss function. A value of 0 deactivates sampled softmax')
         nnArgs.add_argument('--initEmbeddings', action='store_true', help='if present, the program will initialize the embeddings with pre-trained word2vec vectors')
-        nnArgs.add_argument('--embeddingSize', type=int, default=64, help='embedding size of the word representation')
+        nnArgs.add_argument('--embeddingSize', type=int, default=16, help='embedding size of the word representation')
 #        nnArgs.add_argument('--embeddingSource', type=str, default="GoogleNews-vectors-negative300.bin", help='embedding file to use for the word representation')
 #        nnArgs.add_argument('--embeddingSource', type=str, default="wiki.zh_classical.bin", help='embedding file to use for the word representation')
-        nnArgs.add_argument('--embeddingSource', type=str, default="ChineseGigaWords-char-64.bin", help='embedding file to use for the word representation')
+        nnArgs.add_argument('--embeddingSource', type=str, default="ChineseGigaWords-char-16.bin", help='embedding file to use for the word representation')
 
         # Training options
         trainingArgs = parser.add_argument_group('Training options')
         trainingArgs.add_argument('--numEpochs', type=int, default=100, help='maximum number of epochs to run')
         trainingArgs.add_argument('--saveEvery', type=int, default=2000, help='nb of mini-batch step before creating a model checkpoint')
         trainingArgs.add_argument('--batchSize', type=int, default=256, help='mini-batch size')
-        trainingArgs.add_argument('--learningRate', type=float, default=0.002, help='Learning rate')
-        trainingArgs.add_argument('--dropout', type=float, default=0.8, help='Dropout rate (keep probabilities)')
+        trainingArgs.add_argument('--learningRate', type=float, default=0.001, help='Learning rate')
+        trainingArgs.add_argument('--dropout', type=float, default=0.9, help='Dropout rate (keep probabilities)')
 
         return parser.parse_args(args)
 
@@ -286,6 +286,7 @@ class Chatbot:
         """
 
         # Loading the file to predict
+        print("Reading... ", self.TEST_IN_NAME)
         with open(os.path.join(self.args.rootDir, self.TEST_IN_NAME), 'r') as f:
             lines = f.readlines()
 
@@ -301,6 +302,7 @@ class Chatbot:
             print('Testing...')
 
             saveName = modelName[:-len(self.MODEL_EXT)] + self.TEST_OUT_SUFFIX  # We remove the model extension and add the prediction suffix
+            print("Writinging... ", saveName)
             with open(saveName, 'w') as f:
                 nbIgnored = 0
                 for line in tqdm(lines, desc='Sentences'):
@@ -333,9 +335,8 @@ class Chatbot:
 
         while True:
             question = input(self.SENTENCES_PREFIX[0])
-            if question == '' or question == 'exit':
+            if question == 'quit' or question == 'exit':
                 break
-
             questionSeq = []  # Will be contain the question as seen by the encoder
             answer = self.singlePredict(question, questionSeq)
             if not answer:
@@ -347,8 +348,6 @@ class Chatbot:
             if self.args.verbose:
                 print(self.textData.batchSeq2str(questionSeq, clean=True, reverse=True))
                 print(self.textData.sequence2str(answer))
-
-            print()
 
     def singlePredict(self, question, questionSeq=None):
         """ Predict the sentence
@@ -398,9 +397,9 @@ class Chatbot:
         """
 
         # Fetch embedding variables from model
-        with tf.variable_scope("embedding_rnn_seq2seq/rnn/embedding_wrapper", reuse=True):
+        with tf.variable_scope("embedding_attention_seq2seq/rnn/embedding_wrapper", reuse=True):
             em_in = tf.get_variable("embedding")
-        with tf.variable_scope("embedding_rnn_seq2seq/embedding_rnn_decoder", reuse=True):
+        with tf.variable_scope("embedding_attention_seq2seq/embedding_attention_decoder", reuse=True):
             em_out = tf.get_variable("embedding")
 
         # Disable training for embeddings
