@@ -1,3 +1,4 @@
+
 {% load staticfiles %}
 <!DOCTYPE HTML>
 <!--
@@ -7,7 +8,7 @@
 -->
 <html>
 	<head>
-		<title>DeepQA: A Chatbot</title>
+		<title>DeepChatbot</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" href="{% static 'images/icon.png' %}">
@@ -26,14 +27,19 @@
 					<section id="main">
 						<header>
 							<span class="avatar"><img src="{% static 'images/avatar.jpg' %}" alt="" /></span>
-							<h1>Chatbot</h1>
-							<p>Welcome to this session!</p>
+							<h2>我是PTT八卦廢文機器人
+							<font color="red"> (18+)
+							</font> <font
+							color="pink">(beta)</font>
+							</h2>
+							<p>來聊聊八卦吧 :)</p>
 						</header>
 						
 						<form id="chat_form">
                             {% csrf_token %}
 							<div class="field">
-								<input type="text" name="name" id="message" placeholder="Say something..." />
+								<input type="text" name="name" id="message"
+								placeholder="有沒有XXX的八卦⋯⋯" />
 								<!--<a href="#" class="button">Go</a>-->
 								<!--<button type="submit" id="go">Say it</button>-->
 								</div>
@@ -48,9 +54,8 @@
 						
 						<footer>
 							<ul class="icons">
-								<li><a href="http://e-pot.xyz" class="fa-home">Home</a></li>
-								<li><a href="https://github.com/Conchylicultor/DeepQA" class="fa-github">Github</a></li>
-								<li><a href="mailto:etiennefg.pot@gmail.com" class="fa-envelope">Contact</a></li>
+								<li><a href="https://sites.google.com/site/speechlabx" class="fa-home">Home</a></li>
+								<li><a href="mailto:yfliao@mail.ntut.edu.tw" class="fa-envelope">Contact</a></li>
 								<!--<li><a href="#" class="fa-linkedin">LinkedIn</a></li>-->
 							</ul>
 						</footer>
@@ -59,9 +64,8 @@
 				<!-- Footer -->
 					<footer id="footer">
 						<ul class="copyright">
-							<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-							<li>Image: <a href="http://mattdixon.co.uk">Matt Dixon</a></li>
-							<li>&copy; <a href="http://e-pot.xyz">Etienne Pot</a></li>
+							<li><a href="https://sites.google.com/site/speechlabx">Speech Communication Lab.</a></li>
+							<li><a href="http://www.ntut.edu.tw">National Taipei university of Technology</a></li>
 						</ul>
 					</footer>
 

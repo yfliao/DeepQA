@@ -2,6 +2,14 @@
 import os
 import sys
 
+
+import gpu
+# Choose one GPU
+#gpu.setup_one_gpu()
+# Run on CPU
+gpu.setup_no_gpu()
+#
+
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "chatbot_website.settings")
     try:
