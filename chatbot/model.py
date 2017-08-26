@@ -199,7 +199,19 @@ class Model:
         # Here we use an embedding model, it takes integer as input and convert them into word vector for
         # better word representation
 
-        if self.attentionFlag:
+        if self.args.inAttention:
+            print("disable attention mechanisms ...")
+            decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_rnn_seq2seq(
+                self.encoderInputs,  # List<[batch=?, inputDim=1]>, list of size args.maxLength
+                self.decoderInputs,  # For training, we force the correct output (feed_previous=False)
+                encoDecoCell,
+                self.textData.getVocabularySize(),
+                self.textData.getVocabularySize(),  # Both encoder and decoder have the same number of class
+                embedding_size=self.args.embeddingSize,  # Dimension of each word
+                output_projection=outputProjection.getWeights() if outputProjection else None,
+                feed_previous=bool(self.args.test)  # When we test (self.args.test), we use previous output as next input (feed_previous)
+            )
+        else:
             print("enable attention mechanisms ...")
             decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(
                 self.encoderInputs,  # List<[batch=?, inputDim=1]>, list of size args.maxLength
@@ -211,18 +223,6 @@ class Model:
                 output_projection=outputProjection.getWeights() if outputProjection else None,
                 feed_previous=bool(self.args.test),  # When we test (self.args.test), we use previous output as next input (feed_previous)
                 initial_state_attention=False
-            )
-        else:
-            print("disable attention mechanisms ...")
-            decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_rnn_seq2seq(
-                self.encoderInputs,  # List<[batch=?, inputDim=1]>, list of size args.maxLength
-                self.decoderInputs,  # For training, we force the correct output (feed_previous=False)
-                encoDecoCell,
-                self.textData.getVocabularySize(),
-                self.textData.getVocabularySize(),  # Both encoder and decoder have the same number of class
-                embedding_size=self.args.embeddingSize,  # Dimension of each word
-                output_projection=outputProjection.getWeights() if outputProjection else None,
-                feed_previous=bool(self.args.test)  # When we test (self.args.test), we use previous output as next input (feed_previous)
             )
 
         # TODO: When the LSTM hidden size is too big, we should project the LSTM output into a smaller space (4086 => 2046): Should speed up
