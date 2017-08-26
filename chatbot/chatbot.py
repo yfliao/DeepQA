@@ -112,13 +112,14 @@ class Chatbot:
         datasetArgs.add_argument('--corpus', choices=TextData.corpusChoices(), default=TextData.corpusChoices()[0], help='corpus on which extract the dataset.')
         datasetArgs.add_argument('--datasetTag', type=str, default='', help='add a tag to the dataset (file where to load the vocabulary and the precomputed samples, not the original corpus). Useful to manage multiple versions. Also used to define the file used for the lightweight format.')  # The samples are computed from the corpus if it does not exist already. There are saved in \'data/samples/\'
         datasetArgs.add_argument('--ratioDataset', type=float, default=1.0, help='ratio of dataset used to avoid using the whole dataset')  # Not implemented, useless ?
-        datasetArgs.add_argument('--maxLength', type=int, default=50, help='maximum length of the sentence (for input and output), define number of maximum step of the RNN')
-        datasetArgs.add_argument('--filterVocab', type=int, default=1, help='remove rarelly used words (by default words used only once). 0 to keep all words.')
+        datasetArgs.add_argument('--maxLength', type=int, default=30, help='maximum length of the sentence (for input and output), define number of maximum step of the RNN')
+        datasetArgs.add_argument('--filterVocab', type=int, default=3, help='remove rarelly used words (by default words used only once). 0 to keep all words.')
         datasetArgs.add_argument('--skipLines', action='store_true', help='Generate training samples by only using even conversation lines as questions (and odd lines as answer). Useful to train the network on a particular person.')
-        datasetArgs.add_argument('--vocabularySize', type=int, default=0, help='Limit the number of words in the vocabulary (0 for unlimited)')
+        datasetArgs.add_argument('--vocabularySize', type=int, default=10000, help='Limit the number of words in the vocabulary (0 for unlimited)')
 
         # Network options (Warning: if modifying something here, also make the change on save/loadParams() )
         nnArgs = parser.add_argument_group('Network options', 'architecture related option')
+        nnArgs.add_argument('--attentionFlag', action='store_true', help='enable attention mechanisms or not')
         nnArgs.add_argument('--hiddenSize', type=int, default=1024, help='number of hidden units in each RNN cell')
         nnArgs.add_argument('--numLayers', type=int, default=2, help='number of rnn layers')
         nnArgs.add_argument('--softmaxSamples', type=int, default=0, help='Number of samples in the sampled softmax loss function. A value of 0 deactivates sampled softmax')
@@ -397,10 +398,16 @@ class Chatbot:
         """
 
         # Fetch embedding variables from model
-        with tf.variable_scope("embedding_attention_seq2seq/rnn/embedding_wrapper", reuse=True):
-            em_in = tf.get_variable("embedding")
-        with tf.variable_scope("embedding_attention_seq2seq/embedding_attention_decoder", reuse=True):
-            em_out = tf.get_variable("embedding")
+        if self.attentionFlag:
+            with tf.variable_scope("embedding_attention_seq2seq/rnn/embedding_wrapper", reuse=True):
+                em_in = tf.get_variable("embedding")
+            with tf.variable_scope("embedding_attention_seq2seq/embedding_attention_decoder", reuse=True):
+                em_out = tf.get_variable("embedding")
+        else:
+            with tf.variable_scope("embedding_rnn_seq2seq/rnn/embedding_wrapper", reuse=True):
+                em_in = tf.get_variable("embedding")
+            with tf.variable_scope("embedding_rnn_seq2seq/embedding_rnn_decoder", reuse=True):
+                em_out = tf.get_variable("embedding")
 
         # Disable training for embeddings
         variables = tf.get_collection_ref(tf.GraphKeys.TRAINABLE_VARIABLES)
@@ -554,6 +561,7 @@ class Chatbot:
             self.args.skipLines = config['Dataset'].getboolean('skipLines')
             self.args.vocabularySize = config['Dataset'].getint('vocabularySize')
 
+            self.args.attentionFlag = config['Network'].getint('attentionFlag')
             self.args.hiddenSize = config['Network'].getint('hiddenSize')
             self.args.numLayers = config['Network'].getint('numLayers')
             self.args.softmaxSamples = config['Network'].getint('softmaxSamples')
@@ -575,6 +583,7 @@ class Chatbot:
             print('filterVocab: {}'.format(self.args.filterVocab))
             print('skipLines: {}'.format(self.args.skipLines))
             print('vocabularySize: {}'.format(self.args.vocabularySize))
+            print('attentionFlag: {}'.format(self.args.attentionFlag))
             print('hiddenSize: {}'.format(self.args.hiddenSize))
             print('numLayers: {}'.format(self.args.numLayers))
             print('softmaxSamples: {}'.format(self.args.softmaxSamples))
@@ -611,6 +620,7 @@ class Chatbot:
         config['Dataset']['vocabularySize'] = str(self.args.vocabularySize)
 
         config['Network'] = {}
+        config['Network']['attentionFlag'] = str(self.args.attentionFlag)
         config['Network']['hiddenSize'] = str(self.args.hiddenSize)
         config['Network']['numLayers'] = str(self.args.numLayers)
         config['Network']['softmaxSamples'] = str(self.args.softmaxSamples)

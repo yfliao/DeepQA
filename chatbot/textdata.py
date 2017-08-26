@@ -637,8 +637,8 @@ class TextData:
         # First step: Divide the sentence in token
         tokens = nltk.word_tokenize(sentence)
         if len(tokens) > self.args.maxLength:
+            print("Sentence too long: ",len(tokens)," : ",tokens)
             return None
-#        print(tokens)
 
         # Second step: Convert the token in word ids
         wordIds = []
