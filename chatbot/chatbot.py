@@ -119,7 +119,7 @@ class Chatbot:
 
         # Network options (Warning: if modifying something here, also make the change on save/loadParams() )
         nnArgs = parser.add_argument_group('Network options', 'architecture related option')
-        nnArgs.add_argument('--inAttention', action='store_true', help='disable attention mechanisms')
+        nnArgs.add_argument('--inAttention', action='store_true', help='if present, disable attention mechanisms')
         nnArgs.add_argument('--hiddenSize', type=int, default=1024, help='number of hidden units in each RNN cell')
         nnArgs.add_argument('--numLayers', type=int, default=2, help='number of rnn layers')
         nnArgs.add_argument('--softmaxSamples', type=int, default=0, help='Number of samples in the sampled softmax loss function. A value of 0 deactivates sampled softmax')
@@ -174,7 +174,7 @@ class Chatbot:
 
         # Saver/summaries
         self.writer = tf.summary.FileWriter(self._getSummaryName())
-        self.saver = tf.train.Saver(max_to_keep=200)
+        self.saver = tf.train.Saver(max_to_keep=20)
 
         # TODO: Fixed seed (WARNING: If dataset shuffling, make sure to do that after saving the
         # dataset, otherwise, all which cames after the shuffling won't be replicable when
