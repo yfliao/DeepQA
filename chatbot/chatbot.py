@@ -19,6 +19,7 @@ Main script. See README.md for more information
 Use python 3
 """
 
+import sys
 import argparse  # Command line parsing
 import configparser  # Saving the models parameters
 import datetime  # Chronometer
@@ -113,7 +114,7 @@ class Chatbot:
         datasetArgs.add_argument('--datasetTag', type=str, default='', help='add a tag to the dataset (file where to load the vocabulary and the precomputed samples, not the original corpus). Useful to manage multiple versions. Also used to define the file used for the lightweight format.')  # The samples are computed from the corpus if it does not exist already. There are saved in \'data/samples/\'
         datasetArgs.add_argument('--ratioDataset', type=float, default=1.0, help='ratio of dataset used to avoid using the whole dataset')  # Not implemented, useless ?
         datasetArgs.add_argument('--maxLength', type=int, default=30, help='maximum length of the sentence (for input and output), define number of maximum step of the RNN')
-        datasetArgs.add_argument('--filterVocab', type=int, default=3, help='remove rarelly used words (by default words used only once). 0 to keep all words.')
+        datasetArgs.add_argument('--filterVocab', type=int, default=1, help='remove rarelly used words (by default words used only once). 0 to keep all words.')
         datasetArgs.add_argument('--skipLines', action='store_true', help='Generate training samples by only using even conversation lines as questions (and odd lines as answer). Useful to train the network on a particular person.')
         datasetArgs.add_argument('--vocabularySize', type=int, default=10000, help='Limit the number of words in the vocabulary (0 for unlimited)')
 
@@ -261,6 +262,7 @@ class Chatbot:
                     if self.globStep % 100 == 0:
                         perplexity = math.exp(float(loss)) if loss < 300 else float("inf")
                         tqdm.write("----- Step %d -- Loss %.2f -- Perplexity %.2f" % (self.globStep, loss, perplexity))
+                        sys.stdout.flush()
 
 #                    # Checkpoint
 #                    if self.globStep % self.args.saveEvery == 0:
@@ -270,6 +272,7 @@ class Chatbot:
                 self._saveSession(sess)
                 perplexity = math.exp(float(loss)) if loss < 300 else float("inf")
                 print("----- Step %d -- Loss %.2f -- Perplexity %.2f" % (self.globStep, loss, perplexity))
+                sys.stdout.flush()
 
                 toc = datetime.datetime.now()
                 print("Epoch finished in {}".format(toc-tic))  # Warning: Will overflow if an epoch takes more than 24 hours, and the output isn't really nicer

@@ -450,6 +450,8 @@ class TextData:
             inputLine  = conversation['lines'][i]
             targetLine = conversation['lines'][i+1]
 
+#            print(i, inputLine, " <---> ", targetLine)
+
             inputWords  = self.extractText(inputLine['text'])
             targetWords = self.extractText(targetLine['text'])
 
@@ -472,7 +474,7 @@ class TextData:
         j=len(line)
         i=0
         for s in line:
-            if (i==j-1):
+            if i==j-1:
                 characters += s
             else:
                 characters += s + ' '

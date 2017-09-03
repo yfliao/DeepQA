@@ -14,6 +14,8 @@
 # ==============================================================================
 
 import os
+import sys
+import re
 
 """
 Load data from a dataset of simply-formatted data
@@ -54,16 +56,31 @@ class LightweightData:
         Args:
             fileName (str): file to load
         """
+        filter = re.compile(u'[^\u2E80-\u9FFF]')
 
         linesBuffer = []
-        with open(fileName, 'r', encoding='UTF-8', errors='replace') as f:
+        oldl =''
+        count = 0
+        maxLength = 0
+        with open(fileName, 'r', encoding='UTF-8', errors='ignore') as f:
             for line in f:
-                l = line.strip()
+                line = line.strip()
+#                line = bytes(line, 'utf-8').decode('utf-8','ignore')
+                l = filter.sub(r'',line) #remove non-chinese
                 if l == self.CONVERSATION_SEP:
+#                    if count==1:
+#                        linesBuffer.append({"text": oldl})
                     self.conversations.append({"lines": linesBuffer})
+                    print(maxLength, count, linesBuffer)
+#                    sys.stdout.flush()
                     linesBuffer = []
+                    count=0
                 else:
                     linesBuffer.append({"text": l})
+                    if len(l) > maxLength:
+                        maxLength = len(l)
+                    oldl = l
+                    count += 1
             if len(linesBuffer):  # Eventually flush the last conversation
                 self.conversations.append({"lines": linesBuffer})
 
