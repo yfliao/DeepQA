@@ -16,6 +16,7 @@
 """
 Loads the dialogue corpus, builds the vocabulary
 """
+import sys
 
 import numpy as np
 import nltk  # For tokenize
@@ -450,7 +451,8 @@ class TextData:
             inputLine  = conversation['lines'][i]
             targetLine = conversation['lines'][i+1]
 
-#            print(i, inputLine, " <---> ", targetLine)
+            print(i, inputLine, " <---> ", targetLine)
+            sys.stdout.flush()
 
             inputWords  = self.extractText(inputLine['text'])
             targetWords = self.extractText(targetLine['text'])

@@ -56,7 +56,7 @@ class LightweightData:
         Args:
             fileName (str): file to load
         """
-        filter = re.compile(u'[^\u2E80-\u9FFF]')
+        filter = re.compile(u'[^\u2E80-\u9FFF\uF900-\uFFFD\u0020-\u007E]')
 
         linesBuffer = []
         oldl =''
@@ -65,17 +65,16 @@ class LightweightData:
         with open(fileName, 'r', encoding='UTF-8', errors='ignore') as f:
             for line in f:
                 line = line.strip()
-#                line = bytes(line, 'utf-8').decode('utf-8','ignore')
                 l = filter.sub(r'',line) #remove non-chinese
                 if l == self.CONVERSATION_SEP:
 #                    if count==1:
 #                        linesBuffer.append({"text": oldl})
                     self.conversations.append({"lines": linesBuffer})
                     print(maxLength, count, linesBuffer)
-#                    sys.stdout.flush()
+                    sys.stdout.flush()
                     linesBuffer = []
                     count=0
-                else:
+                elif len(l)>0:
                     linesBuffer.append({"text": l})
                     if len(l) > maxLength:
                         maxLength = len(l)
